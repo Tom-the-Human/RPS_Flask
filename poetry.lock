@@ -41,6 +41,17 @@ files = [
 ]
 
 [[package]]
+name = "cowsay"
+version = "6.1"
+description = "The famous cowsay for GNU/Linux is now available for python"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "cowsay-6.1-py3-none-any.whl", hash = "sha256:274b1e6fc1b966d53976333eb90ac94cb07a450a700b455af9fbdf882244b30a"},
+]
+
+[[package]]
 name = "flask"
 version = "3.1.2"
 description = "A simple framework for building complex web applications."
@@ -214,4 +225,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-content-hash = "7082aa4f3d35f1a2ecf59b6d3807229b347c894cf699e030658921367856db27"
+content-hash = "07f87a307e5c488b70a596f393086bc85011b4510498fe51a8d050b40cc089e6"

@@ -1,0 +1,24 @@
+.terminal-window {
+    background-color: #2E3436; /* A dark, terminal-like color */
+    color: #EEEEEC;          /* A light, off-white text color */
+    font-family: 'Courier New', Courier, monospace; /* A monospaced font */
+    padding: 20px;
+    border: 1px solid #555753;
+    border-radius: 5px;
+}
+
+.text-red {
+    color: #CC0000; /* Replaces RED = '\033[31m' */
+}
+
+.text-green {
+    color: #4E9A06; /* Replaces GREEN = '\033[32m' */
+}
+
+.text-yellow {
+    color: #C4A000; /* Replaces YELLOW = '\033[33m' */
+}
+
+.text-bold {
+    font-weight: bold; /* Replaces BOLD = '\033[1m' */
+}
