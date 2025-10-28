@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>RPS Battle</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/app.css') }}">
-</head>
-<body>
-  <div class="terminal-window">
-    <!-- Title -->
+{% extends "layout.html" %}
+
+{% block title %}RPS Battle{% endblock %}
+
+{% block terminal %}
     <header>
       {% if not game_started %}
-        <!-- Display this content if the game has NOT started -->
         <pre class="text-yellow">{{ title_art }}</pre>
         <p>🦕 A dino-themed "Rock, Paper, Scissors" battle 🦖</p>
         <p>🦕 Score 3 wins to be crowned ruler of the dinosaurs! 🦖</p>
       {% else %}
-        <!-- Display this content if the game HAS started -->
         <pre>
              |                 |
             =X=================X=
@@ -26,17 +20,13 @@
       {% endif %}
     </header>
 
-    <!-- Check if the game is over -->
     {% if game_winner %}
         {% if game_winner == 'player' %}
             <pre class="text-green">{{ cowsay_art_for_win }}</pre>
         {% else %}
             <h2 class="text-red">You have not proven yourself worthy.</h2>
         {% endif %}
-
-    <!-- Otherwise, show game controls and results -->
     {% else %}
-        <!-- Round Results Display -->
         {% if round_data.winner %}
             <p>You chose {{ round_data.player_choice }}!</p>
             <p>Your opponent chooses {{ round_data.computer_choice }}!</p>
@@ -54,22 +44,25 @@
             <h3>Choose your champion!</h3>
         {% endif %}
     {% endif %}
-      </div>
-      <div class="actions">
-        {% if game_winner %}
-          <form action="{{ url_for('reset_game') }}" method="GET" stle="display: inline">
-            <button type="submit" name="reset">Play Again</button>
-          </form>
-          <form action="{{ url_for('show_stats') }}" method="GET" stle="display: inline">
-            <button type="submit" name="stats">View Stats</button>
-          </form>
-        {% else %}
-          <form method="POST">
-            <button type="submit" name="move" value="Raptor">(1) Raptor</button>
-            <button type="submit" name="move" value="Pterodactyl">(2) Pterodactyl</button>
-            <button type="submit" name="move" value="Stegosaurus">(3) Stegosaurus</button>
-          </form>
-        {% endif %}
-      </div>
-</body>
-</html>
+{% endblock %}
+
+{% block actions %}
+    <!-- This all goes inside the .actions div -->
+    {% if game_winner %}
+      <form action="{{ url_for('reset_game') }}" method="GET" style="display: inline">
+        <button type="submit" name="reset">Play Again</button>
+      </form>
+      <form action="{{ url_for('show_stats') }}" method="GET" style="display: inline">
+        <button type="submit" name="stats">View Stats</button>
+      </form>
+      <form action="{{ url_for('signout') }}" method="GET" style="display: inline">
+        <button type="submit" name="signout">Sign Out</button>
+      </form>
+    {% else %}
+      <form method="POST">
+        <button type="submit" name="move" value="Raptor">Raptor</button>
+        <button type="submit" name="move" value="Pterodactyl">Pterodactyl</button>
+        <button type="submit" name="move" value="Stegosaurus">Stegosaurus</button>
+      </form>
+    {% endif %}
+{% endblock %}

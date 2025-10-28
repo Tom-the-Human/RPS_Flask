@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}RPS - Sign In{% endblock %}
+
+{% block terminal %}
+    <h2>Sign In</h2>
+    <form id="signin-form" method="POST" action="{{ url_for('signin') }}">
+      <div>
+        <label for="username"> Username:
+          <input name="username" id="username" value="{{ request.form.username | default('') }}" required/>
+        </label>
+      </div>
+      <div>
+        <label for="password"> Password:
+          <input class="inline" type="password" id="password" name="password" required/>
+        </label>
+      </div>
+  </form>
+{% endblock %}
+{% block actions %}
+  <button type="submit" form="signin-form">Sign In</button>
+
+  <p>
+    No account? <a href="{{ url_for('create_user') }}">Create one!</a>
+  </p>
+{% endblock %}

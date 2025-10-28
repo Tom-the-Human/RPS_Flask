@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Use a block for the title so child templates can customize it -->
+    <title>{% block title %}RPS Battle{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/app.css') }}">
+</head>
+<body>
+  {% for message in get_flashed_messages() %}
+    <p class="message">{{ message }}</p>
+  {% endfor %}
+    <div class="terminal-window">
+        {% block terminal %}{% endblock %}
+    </div>
+    <div class="actions">
+        {% block actions %}{% endblock %}
+    </div>
+</body>
+</html>

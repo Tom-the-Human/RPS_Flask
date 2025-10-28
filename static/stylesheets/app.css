@@ -22,3 +22,7 @@
 .text-bold {
     font-weight: bold; /* Replaces BOLD = '\033[1m' */
 }
+
+.inline {
+    display: inline;
+}

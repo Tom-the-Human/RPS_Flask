@@ -2,14 +2,36 @@ from flask import (
     Flask, render_template, request, session, redirect, url_for, flash
     )
 from functools import wraps
+import bcrypt
 import io
 import contextlib
 import cowsay
+import os
+import yaml
 import game
 
 app = Flask(__name__)
-# You need a secret key to use sessions
 app.secret_key = 'a_super_secret_key' 
+
+def load_user_credentials():
+    filename = 'users.yaml'
+    root_dir = os.path.dirname(__file__)
+    if app.config['TESTING']:
+        credentials_path = os.path.join(root_dir, 'tests', filename)
+    else:
+        credentials_path = os.path.join(root_dir, 'data', filename)
+    
+    with open(credentials_path, 'r') as file:
+        return yaml.safe_load(file)
+
+def validate_signin(username, password):
+    credentials = load_user_credentials()
+
+    if username in credentials:
+        stored_password = credentials[username]['password'].encode('utf-8')
+        return bcrypt.checkpw(password.encode('utf-8'), stored_password)
+
+    return False
 
 def user_signed_in():
     return 'username' in session
@@ -19,7 +41,7 @@ def require_signed_in_user(func):
     def decorated(*args, **kwargs):
         if not user_signed_in():
             flash("Please sign in or create an account.")
-            return redirect(url_for('show_signin_form'))
+            return redirect(url_for('signin'))
         
         return func(*args, **kwargs)
     return decorated
@@ -81,26 +103,75 @@ def rps_game():
                            title_art=title_art,
                            game_started=session.get('game_started', False))
 
-@app.route("<username>/stats")
+@app.route("/users/stats")
 @require_signed_in_user
 def show_stats():
     # Implement after user login implemented
     return "User stats coming soon!"
 
-@app.route('/users/signin' methods=['GET', 'POST'])
-def show_signin_form():
+
+@app.route ('/users/signup', methods=['GET', 'POST'])
+def create_user():
+    if request.method == 'POST':
+        username = request.form.get("username")
+        password = request.form.get("password")
+        password_bytes = password.encode('utf-8')
+
+        hashed_password_bytes = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+        hashed_password_str = hashed_password_bytes.decode('utf-8')
+
+        root_dir = os.path.dirname(__file__)
+        file_path = os.path.join(root_dir, 'data', 'users.yaml')
+
+        try:
+            with open(file_path, 'r') as file:
+                users = yaml.safe_load(file) or {}
+        except FileNotFoundError:
+            users = {}
+
+        users[username] = {
+            'password': hashed_password_str
+        }
+
+        with open('data/users.yaml', 'w') as file:
+            print(users)
+            yaml.dump(users, file)
+
+        flash(f'Account creation successful! Welcome {username}!')
+        session['username'] = username
+        session.modified = True
+
+        return redirect(url_for('rps_game'))
+
+
+    return render_template('account_creation.html')
+
+@app.route('/users/signin', methods=['GET', 'POST'])
+def signin():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if validate_signin(username, password):
+            flash(f'Welcome to the jungle, {username}!')
+            session['username'] = username
+            session.modified = True
+            return redirect(url_for('rps_game'))
+    
     return render_template('signin_form.html')
 
-@app.route("/users/signout", methods=['POST'])
+@app.route("/users/signout", methods=['GET'])
 def signout():
-    session.pop('username', None)
-    flash("You have been signed out.")
-    return redirect(url_for('index'))
+    username = session.pop('username', None)
+    if username:
+        flash(f"You have been signed out, {username}.")
+    return redirect(url_for('signin'))
 
 # Route to reset the game
 @app.route("/reset")
 def reset_game():
-    session.clear() # Clears the score
+    session['score'] = [0, 0]
+    session['game_started'] = False
     return redirect(url_for('rps_game'))
 
 

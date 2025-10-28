@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}RPS - Create Account{% endblock %}
+
+{% block terminal %}
+    <h2>Create a New Account</h2>
+    <span>
+        Accounts are required so we can show you your stats, such as number of games played and favorite moves.
+    </span>
+    <span>
+
+    </span>
+    <form id="account-creation-form" method="POST" action="{{ url_for('create_user') }}">
+      <div>
+        <label for="username"> Username:
+          <input name="username" id="username" value="{{ request.form.username | default('') }}" required/>
+        </label>
+      </div>
+      <div>
+        <label for="password"> Password:
+          <input type="password" id="password" name="password" required/>
+        </label>
+      </div>
+        <div>
+          <label for="confirm_password">Confirm Password:</label>
+          <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+  </form>
+{% endblock %}
+{% block actions %}
+  <button type="submit" form="account-creation-form">Create Account</button>
+  <p>
+    Already have an account? <a href="{{ url_for('signin') }}">Sign in here!</a>
+  </p>
+{% endblock %}
