@@ -5,7 +5,7 @@
     <title>{% block title %}RPS Battle{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/app.css') }}">
 </head>
-<body>
+<body {% if play_sound %}data-play-sound="true"{% endif %}>
   {% for message in get_flashed_messages() %}
     <p class="message">{{ message }}</p>
   {% endfor %}
@@ -15,5 +15,6 @@
     <div class="actions">
         {% block actions %}{% endblock %}
     </div>
+    <script src="{{ url_for('static', filename='javascripts/game.js') }}"></script>
 </body>
 </html>

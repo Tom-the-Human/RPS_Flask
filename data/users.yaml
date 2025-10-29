@@ -1,4 +1,14 @@
-tom:
-  password: $2b$12$G7uXk2oOW6NpsP9Qs1sufOe8P9rj9G1uV0uJY3Hn1C5gbObTBstba
-tom1:
-  password: $2b$12$dn3zwj/N3O/FUD4Zg/ZWGelbEMmQ7T/qwyE4rvRH6glYyKGCgsXbO
+Tom:
+  Pterodactyl: 6
+  Raptor: 12
+  Stegosaurus: 5
+  losses: 3
+  password: $2b$12$MEwbDXziZZ0IKIOESdNpYO4XCL3odJ0586IQejAup5randPdVOfiS
+  wins: 5
+test:
+  Pterodactyl: 23
+  Raptor: 31
+  Stegosaurus: 8
+  losses: 8
+  password: $2b$12$wpL4F0Qf5APHdw.vDaV6iey3dkIjUTKgpLft10IvMSWxaJ92mpMl2
+  wins: 7

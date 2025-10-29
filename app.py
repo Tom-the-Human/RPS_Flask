@@ -13,22 +13,36 @@ import game
 app = Flask(__name__)
 app.secret_key = 'a_super_secret_key' 
 
-def load_user_credentials():
+def get_user_data_path():
+    """Returns the absolute path to the users.yaml file, handling test environments."""
     filename = 'users.yaml'
     root_dir = os.path.dirname(__file__)
-    if app.config['TESTING']:
-        credentials_path = os.path.join(root_dir, 'tests', filename)
+    if app.config.get('TESTING'): # Use .get() for safety
+        return os.path.join(root_dir, 'tests', filename)
     else:
-        credentials_path = os.path.join(root_dir, 'data', filename)
+        return os.path.join(root_dir, 'data', filename)
     
-    with open(credentials_path, 'r') as file:
-        return yaml.safe_load(file)
+def load_user_data():
+    """Loads and returns the user data dictionary."""
+    file_path = get_user_data_path()
+    try:
+        with open(file_path, 'r') as file:
+            return yaml.safe_load(file) or {}
+    except FileNotFoundError:
+        return {}
+
+def save_user_data(users):
+    """Saves the entire users dictionary to the yaml file."""
+    file_path = get_user_data_path()
+    with open(file_path, 'w') as file:
+        yaml.dump(users, file)
 
 def validate_signin(username, password):
-    credentials = load_user_credentials()
+    """Checks username and password against saved credentials."""
+    users = load_user_data()
 
-    if username in credentials:
-        stored_password = credentials[username]['password'].encode('utf-8')
+    if username in users:
+        stored_password = users[username]['password'].encode('utf-8')
         return bcrypt.checkpw(password.encode('utf-8'), stored_password)
 
     return False
@@ -49,6 +63,11 @@ def require_signed_in_user(func):
 @app.route("/", methods=["GET", "POST"])
 @require_signed_in_user
 def rps_game():
+    # Find all sfx files and create URLs
+    sfx_dir = os.path.join(app.static_folder, 'sfx')
+    sfx_files = [f for f in os.listdir(sfx_dir) if f.endswith('.mp3')]
+    sfx_urls = [url_for('static', filename=f'sfx/{fname}') for fname in sfx_files]
+
     # Initialize score if it's not in the session
     if 'score' not in session:
         session['score'] = [0, 0] # [player, opponent]
@@ -57,17 +76,39 @@ def rps_game():
     # This block handles a player's move
     if request.method == "POST":
         session['game_started'] = True
+        session['play_sound'] = True
         player_choice = request.form.get("move")
         computer_choice = game.get_computer_choice()
-
-        # Get results from your game engine
         result_info = game.determine_round_result(player_choice, computer_choice)
 
-        # Update the score (replaces score_keeper())
+        # Update the score
         if result_info['winner'] == 'player':
             session['score'][0] += 1
         elif result_info['winner'] == 'opponent':
             session['score'][1] += 1
+
+        # Track moves
+        users = load_user_data()
+        current_user = session['username']
+        users[current_user][player_choice] += 1
+        save_user_data(users)
+
+        # Check for a game winner after every round
+        game_winner = None
+        if session['score'][0] >= 3:
+            game_winner = 'player'
+        elif session['score'][1] >= 3:
+            game_winner = 'opponent'
+
+        # Track wins & losses
+        if game_winner:
+            users = load_user_data()
+            current_user = session['username']
+            if game_winner == 'player':
+                users[current_user]['wins'] += 1
+            else:
+                users[current_user]['losses'] += 1
+            save_user_data(users)
 
         session['round_data'] = {
             'player_choice': player_choice,
@@ -79,14 +120,18 @@ def rps_game():
         session.modified = True
 
         return redirect(url_for('rps_game'))
-    
+
     round_data = session.pop('round_data', {})
 
-    # Generate and store cowsay title art
-    output_buffer = io.StringIO()
-    with contextlib.redirect_stdout(output_buffer):
-        cowsay.trex("Welcome to Raptor, Pterodactyl, Stegosaurus!")
-    title_art = output_buffer.getvalue()
+    # Generate and store cowsay art
+    title_art_buffer = io.StringIO()
+    with contextlib.redirect_stdout(title_art_buffer):
+        cowsay.trex(f"Greetings, {session.get('username', 'human')}!\nWelcome to Raptor, Pterodactyl, Stegosaurus!")
+    title_art = title_art_buffer.getvalue()
+    win_art_buffer = io.StringIO()
+    with contextlib.redirect_stdout(win_art_buffer):
+        cowsay.trex('Congratulations, conqueror!\nYou are our new leige!')
+    win_art = win_art_buffer.getvalue()
 
     # Check for a game winner after every round
     game_winner = None
@@ -95,20 +140,49 @@ def rps_game():
     elif session['score'][1] >= 3:
         game_winner = 'opponent'
 
+    # Works with game.js to play a sound
+    play_sound_on_load = session.pop('play_sound', False)
+
     # Render the template with all the necessary data
     return render_template('index.html', 
                            score=session['score'], 
                            round_data=round_data,
                            game_winner=game_winner,
                            title_art=title_art,
+                           win_art=win_art,
+                           play_sound=play_sound_on_load,
+                           sfx_urls=sfx_urls,
                            game_started=session.get('game_started', False))
 
 @app.route("/users/stats")
 @require_signed_in_user
 def show_stats():
-    # Implement after user login implemented
-    return "User stats coming soon!"
+    users = load_user_data()
+    current_user = session['username']
+    stats = users[current_user]
 
+        # Calculate favorite move
+    moves = {
+        'Raptor': stats['Raptor'],
+        'Pterodactyl': stats['Pterodactyl'],
+        'Stegosaurus': stats['Stegosaurus']
+    }
+
+    favorite_move = "None yet"
+    if any(moves.values()): # Check if any moves have been made
+        favorite_move = max(moves, key=moves.get)
+
+    # Calculate percentages
+    total_moves = sum(moves.values())
+    percentages = {}
+    if total_moves > 0:
+        for move, count in moves.items():
+            percentages[move] = round((count / total_moves) * 100, 1)
+
+    return render_template('stats.html', 
+                           stats=stats,
+                           favorite_move=favorite_move,
+                           percentages=percentages)
 
 @app.route ('/users/signup', methods=['GET', 'POST'])
 def create_user():
@@ -130,7 +204,12 @@ def create_user():
             users = {}
 
         users[username] = {
-            'password': hashed_password_str
+            'password': hashed_password_str,
+            'wins': 0,
+            'losses': 0,
+            'Raptor': 0,
+            'Pterodactyl': 0,
+            'Stegosaurus': 0,
         }
 
         with open('data/users.yaml', 'w') as file:
@@ -162,7 +241,7 @@ def signin():
 
 @app.route("/users/signout", methods=['GET'])
 def signout():
-    username = session.pop('username', None)
+    username = session.clear()
     if username:
         flash(f"You have been signed out, {username}.")
     return redirect(url_for('signin'))

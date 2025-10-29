@@ -22,7 +22,7 @@
 
     {% if game_winner %}
         {% if game_winner == 'player' %}
-            <pre class="text-green">{{ cowsay_art_for_win }}</pre>
+            <pre class="text-green">{{ win_art }}</pre>
         {% else %}
             <h2 class="text-red">You have not proven yourself worthy.</h2>
         {% endif %}
@@ -47,7 +47,6 @@
 {% endblock %}
 
 {% block actions %}
-    <!-- This all goes inside the .actions div -->
     {% if game_winner %}
       <form action="{{ url_for('reset_game') }}" method="GET" style="display: inline">
         <button type="submit" name="reset">Play Again</button>
@@ -65,4 +64,6 @@
         <button type="submit" name="move" value="Stegosaurus">Stegosaurus</button>
       </form>
     {% endif %}
+    {# In templates/index.html, inside either the content or actions block #}
+  <div id="sfx-urls" data-urls='{{ sfx_urls | tojson }}' style="display: none;"></div>
 {% endblock %}

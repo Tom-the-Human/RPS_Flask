@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}Your RPS Stats{% endblock %}
+
+{% block terminal %}
+  <h2> Stats for {{ session.get('username') }}</h2>
+  <p>
+    <span class="text-bold">Wins:</span> {{ stats.wins }}
+  </p>
+  <p>
+    <span class="text-bold">Losses:</span> {{ stats.losses }}
+  </p>
+  <p>
+    <span class="text-bold">Favorite Move:</span> {{ favorite_move}}
+  </p>
+
+  <hr>
+
+   <h3>Move Distribution</h3>
+    {% if percentages %}
+        <ul>
+            {% for move, percent in percentages.items() %}
+                <li>{{ move }}: {{ percent }}%</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No moves recorded yet. Go play a game!</p>
+    {% endif %}
+
+{% endblock %}
+
+{% block actions %}
+    <form action="{{ url_for('rps_game') }}" method="GET" style="display: inline">
+        <button type="submit" name="reset">Back to Game</button>
+    </form>
+    <form action="{{ url_for('signout') }}" method="GET" style="display: inline">
+        <button type="submit" name="signout">Sign Out</button>
+    </form>
+{% endblock %}
