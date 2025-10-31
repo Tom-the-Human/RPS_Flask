@@ -1,3 +1,10 @@
+Mom mom mom:
+  Pterodactyl: 4
+  Raptor: 8
+  Stegosaurus: 6
+  losses: 0
+  password: $2b$12$FRDIGi8m86Q/aM4b1m7T3eaYUzVESkYFnllKrQjSy57DMeTlb5zyK
+  wins: 4
 Tom:
   Pterodactyl: 6
   Raptor: 12
@@ -6,9 +13,9 @@ Tom:
   password: $2b$12$MEwbDXziZZ0IKIOESdNpYO4XCL3odJ0586IQejAup5randPdVOfiS
   wins: 5
 test:
-  Pterodactyl: 23
-  Raptor: 31
-  Stegosaurus: 8
-  losses: 8
+  Pterodactyl: 38
+  Raptor: 62
+  Stegosaurus: 27
+  losses: 13
   password: $2b$12$wpL4F0Qf5APHdw.vDaV6iey3dkIjUTKgpLft10IvMSWxaJ92mpMl2
-  wins: 7
+  wins: 12

@@ -1,10 +1,5 @@
-.terminal-window {
-    background-color: #2E3436; /* A dark, terminal-like color */
-    color: #EEEEEC;          /* A light, off-white text color */
-    font-family: 'Courier New', Courier, monospace; /* A monospaced font */
-    padding: 20px;
-    border: 1px solid #555753;
-    border-radius: 5px;
+html {
+    background-color: #111
 }
 
 .text-red {
@@ -25,4 +20,34 @@
 
 .inline {
     display: inline;
+}
+
+.terminal-window {
+    background-color: #1c2022; /* A dark, terminal-like color */
+    color: #EEEEEC;          /* A light, off-white text color */
+    font-family: 'Courier New', Courier, monospace; /* A monospaced font */
+    padding: 20px;
+    border: 1px solid #525c49;
+    border-radius: 5px;
+    min-height:47em;
+    position: relative;
+    overflow: hidden
+}
+
+.terminal-window::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.2) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none; /* Allows clicks to pass through the overlay */
 }
