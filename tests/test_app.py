@@ -1,3 +1,7 @@
+"""
+Very basic test suite, should ideally be expanded.
+"""
+
 import unittest
 import os
 import shutil
