@@ -212,7 +212,7 @@ def create_user():
             'Stegosaurus': 0,
         }
 
-        with open('data/users.yaml', 'w') as file:
+        with open(file_path, 'w') as file:
             print(users)
             yaml.dump(users, file)
 
